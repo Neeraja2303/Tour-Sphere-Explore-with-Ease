@@ -1,0 +1,29 @@
+[
+    {
+        "id": 1,
+        "destination": "Jaipur",
+        "description": "Explore Jaipur's rich heritage with our tour package: majestic forts, vibrant bazaars, cultural experiences, and delicious Rajasthani cuisine!",
+        "price": 16000.0,
+        "latitude": 26.9167,
+        "longitude": 75.8667,
+        "image": "jaipur.jpeg"
+    },
+    {
+        "id": 2,
+        "destination": "Amritsar",
+        "description": "Explore Amritsar's rich heritage: Golden Temple, Wagah Border, Jallianwala Bagh, local cuisine, cultural vibes, and serene beauty await!",
+        "price": 20000.0,
+        "latitude": 31.6167,
+        "longitude": 74.85,
+        "image": "punjab.jpeg"
+    },
+    {
+        "id": 3,
+        "destination": "Port Blair",
+        "description": "Explore Port Blair's pristine beaches, historic Cellular Jail, vibrant coral reefs, and lush greenery with our exciting tour package!",
+        "price": 25000.0,
+        "latitude": 11.6667,
+        "longitude": 92.75,
+        "image": "andaman.jpeg"
+    }
+]

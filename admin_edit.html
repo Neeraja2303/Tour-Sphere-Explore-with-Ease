@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Travel Package</title>
+    <style>
+        #imagePreview {
+            margin-top: 10px;
+            max-width: 300px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Edit Package</h1>
+    <form action="{{ url_for('edit_travel', id=travel.id) }}" method="post" enctype="multipart/form-data">
+        Destination: <input type="text" name="destination" value="{{ travel.destination }}" required><br>
+        Description: <input type="text" name="description" value="{{ travel.description }}" required><br>
+        Price: <input type="number" name="price" step="0.01" value="{{ travel.price }}" required><br>
+        
+        Image: <input type="file" name="image" accept="image/*" id="imageInput"><br>
+        
+        <!-- Image Preview Section -->
+        <img id="imagePreview" src="" alt="Image Preview" style="display: none;">
+
+        {% if travel.image %}
+            <h3>Current Image:</h3>
+            <img src="{{ url_for('static', filename='images/' + travel.image) }}" alt="Current Travel Image" style="max-width: 300px;">
+        {% endif %}
+        
+        <button type="submit">Update Package</button>
+    </form>
+
+    <script>
+        // JavaScript to preview the image when selected
+        document.getElementById('imageInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            const preview = document.getElementById('imagePreview');
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';  // Show the preview image
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.style.display = 'none';  // Hide the preview if no file is selected
+            }
+        });
+    </script>
+</body>
+</html>

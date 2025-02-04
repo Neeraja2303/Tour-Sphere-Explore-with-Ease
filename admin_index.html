@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Travel Packages</title>
+</head>
+<body>
+    <h1>Travel Packages</h1>
+    <a style="display: inline-block; padding: 10px 20px; background-color: rgb(185, 250, 111); color: black; border-radius: 5px; text-align: center; text-decoration: none;" href="{{ url_for('add_travel') }}">Add New Package</a>
+
+<a style="display: inline-block; padding: 10px 20px; background-color: rgb(165, 42, 42); color: white; border-radius: 5px; text-align: center; text-decoration: none; margin-left: 20px;" href="{{ url_for('admin_login') }}">Logout</a>
+<ul>
+        {% for package in travel_data %}
+        <li>
+            <h3>{{ package.destination }} - Rs.{{ package.price }}</h3>
+            {% if package.image %}
+                <img src="{{ url_for('static', filename='images/' + package.image) }}" alt="Package Image" style="max-width: 200px;">
+            {% endif %}
+            <p>{{ package.description }}</p>
+            <!--<a href="{{ url_for('edit_travel', id=package.id) }}">Edit</a>-->
+            <a href="{{ url_for('edit_travel', id=package.id) }}" class="btn" style="padding: 10px 20px; background-color: rgb(255, 193, 7); color: white; text-decoration: none; border-radius: 5px;">Edit</a>
+
+<form action="{{ url_for('delete_travel', id=package.id) }}" method="post" style="display:inline;">
+    <button type="submit" class="btn" style="padding: 10px 20px; background-color: rgb(220, 53, 69); color: white; border-radius: 5px;">Delete</button>
+</form>
+
+        </li>
+        {% endfor %}
+    </ul>
+
+    <h2>User Booking History</h2>
+
+{% if bookings %}
+    <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+        <thead style="background-color: #f4f4f4; text-align: left;">
+            <tr>
+                <th style="padding: 10px; border: 1px solid #ddd;">User</th>
+                <th style="padding: 10px; border: 1px solid #ddd;">Package Name</th>
+                <th style="padding: 10px; border: 1px solid #ddd;">Travel Date</th>
+                <th style="padding: 10px; border: 1px solid #ddd;">Adults</th>
+                <th style="padding: 10px; border: 1px solid #ddd;">Children</th>
+                <th style="padding: 10px; border: 1px solid #ddd;">Food Preference</th>
+                <th style="padding: 10px; border: 1px solid #ddd;">Total Cost</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for booking in bookings %}
+                <tr style="border-bottom: 1px solid #ddd;">
+                    <td style="padding: 10px; border: 1px solid #ddd;">{{ booking.user }}</td>
+                    <td style="padding: 10px; border: 1px solid #ddd;">{{ booking.packagePlace }}</td>
+                    <td style="padding: 10px; border: 1px solid #ddd;">{{ booking.travelDate }}</td>
+                    <td style="padding: 10px; border: 1px solid #ddd;">{{ booking.adults }}</td>
+                    <td style="padding: 10px; border: 1px solid #ddd;">{{ booking.children }}</td>
+                    <td style="padding: 10px; border: 1px solid #ddd;">{{ booking.foodPreference }}</td>
+                    <td style="padding: 10px; border: 1px solid #ddd;">{{ booking.totalCost }} INR</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>No bookings found.</p>
+{% endif %}
+
+</body>
+</html>

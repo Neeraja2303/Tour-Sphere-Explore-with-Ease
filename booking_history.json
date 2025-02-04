@@ -1,0 +1,29 @@
+[
+    {
+        "user": "user123",
+        "adults": 2,
+        "children": 1,
+        "foodPreference": "non-veg",
+        "totalCost": "40600",
+        "travelDate": "2025-05-05",
+        "packagePlace": "Jaipur"
+    },
+    {
+        "user": "user456",
+        "adults": 3,
+        "children": 1,
+        "foodPreference": "veg",
+        "totalCost": "87900",
+        "travelDate": "2025-10-10",
+        "packagePlace": "Port Blair"
+    },
+    {
+        "user": "user123",
+        "adults": 2,
+        "children": 2,
+        "foodPreference": "non-veg",
+        "totalCost": "48800",
+        "travelDate": "2026-02-02",
+        "packagePlace": "Jaipur"
+    }
+]

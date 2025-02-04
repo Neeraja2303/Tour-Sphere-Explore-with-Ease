@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nearest Location Finder</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        #status {
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        .location {
+            font-size: 1.2em;
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+            display: inline-block;
+            width: 300px;
+            margin: 10px;
+            text-align: left;
+            background-color: #f9f9f9;
+        }
+        .location img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+        .location-info {
+    margin-top: 15px;
+    padding: 15px;
+    border: 1px solid #ccc;
+    background-color: #f0f8ff;  /* Light blue background for better visibility */
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    line-height: 1.5;
+}
+
+        .book-now {
+            margin-top: 50px;
+            padding: 50px;
+            background-color: #007bff;
+            color: green;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .book-now:hover {
+            background-color: #0056b3;
+        }
+        #loading {
+            display: none;
+            font-size: 1.2em;
+            color: #007bff;
+            margin-top: 10px;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <h1>Nearest Location Finder</h1>
+    <button onclick="getNearestLocation()">Find Locations</button>
+    <p id="status"></p>
+    <div id="nearest"></div>
+    <p id="loading">Locating...</p>
+
+    <script>
+        const username = "{{ username }}";  // Get the logged-in username passed from Flask
+
+        function getNearestLocation() {
+            const statusElement = document.getElementById("status");
+            const nearestElement = document.getElementById("nearest");
+            const loadingElement = document.getElementById("loading");
+
+            // Clear previous results
+            nearestElement.innerHTML = '';
+            // Show loading indicator
+            loadingElement.style.display = 'block';
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((position) => {
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+
+                    // Send data to the server to fetch locations
+                    fetch('/get_nearest_location', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ latitude, longitude })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        loadingElement.style.display = 'none';  // Hide loading
+                        if (data.message === "Nearest locations found") {
+                            statusElement.textContent = `Your Location: Latitude ${latitude}, Longitude ${longitude}`;
+                            statusElement.classList.add('success');
+
+                            // Display all locations with their distances
+                            if (data.nearest_locations.length === 0) {
+                                nearestElement.innerHTML = "<p>No locations found.</p>";
+                            } else {
+                                data.nearest_locations.forEach((location, detect_location) => {
+                                    const locationDiv = document.createElement('div');
+                                    locationDiv.classList.add('location');
+                                    
+                                    // Add location image with fallback
+                                    const imgElement = document.createElement('img');
+                                    imgElement.src = location.image ? location.image : 'default-image.jpg';  // Add fallback image
+                                    imgElement.onerror = () => {
+                                        imgElement.src = 'default-image.jpg';  // Fallback if image doesn't load
+                                    };
+                                    locationDiv.appendChild(imgElement);
+
+                                    // Add location info (name, distance, price)
+                                    const locationInfoDiv = document.createElement('div');
+                                    locationInfoDiv.classList.add('location-info');
+                                    locationInfoDiv.innerHTML = ` 
+                                        <strong>${location.name}</strong><br>
+                                        Distance: ${location.distance_km.toFixed(2)} km<br>
+                                        Price: ₹${location.price.toFixed(2)}<br>
+                                        Description: ${location.description}<br>
+                                    `;
+                                    locationDiv.appendChild(locationInfoDiv);
+
+                                    // Add "Book Now" button with redirection to booking page
+                                    const bookButton = document.createElement('button');
+                                    bookButton.classList.add('book-now');
+                                    bookButton.textContent = "Book Now";
+                                    bookButton.onclick = function() {
+                                        // Redirect to booking page with location details and username
+                                        const bookingUrl = `/booking?package_id=${location.id}&price=${location.price}&destination=${encodeURIComponent(location.name)}&username=${username}`;
+                                        window.location.href = bookingUrl;
+                                    };
+                                    locationDiv.appendChild(bookButton);
+
+                                    nearestElement.appendChild(locationDiv);
+                                });
+                            }
+                        } else {
+                            statusElement.textContent = "Error finding locations.";
+                            statusElement.classList.add('error');
+                        }
+                    })
+                    .catch(error => {
+                        loadingElement.style.display = 'none';  // Hide loading
+                        statusElement.textContent = "Error fetching locations.";
+                        statusElement.classList.add('error');
+                        console.error("Error:", error);
+                    });
+                }, (error) => {
+                    loadingElement.style.display = 'none';  // Hide loading
+                    statusElement.textContent = "Unable to retrieve location. Please enable location services.";
+                    statusElement.classList.add('error');
+                    console.error(error);
+                });
+            } else {
+                loadingElement.style.display = 'none';  // Hide loading
+                statusElement.textContent = "Geolocation is not supported by this browser.";
+                statusElement.classList.add('error');
+            }
+        }
+    </script>
+</body>
+</html>

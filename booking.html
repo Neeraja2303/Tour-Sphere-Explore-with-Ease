@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Booking Page</h2>
+<p>Please enter your details below:</p>
+
+<form style="border-style:groove;" id="bookingForm">
+    <br><br>
+    <label for="adults">Number of Adults:</label>
+    <input type="number" id="adults" name="adults" value="0" min="0" required onchange="calculateTotal()"><br><br>
+    
+    <label for="children">Number of Children:</label>
+    <input type="number" id="children" name="children" value="0" min="0" required onchange="calculateTotal()"><br><br>
+    
+    <label for="travel_date">Select Travel Date:</label>
+    <input type="date" id="travel_date" name="travel_date" required><br><br>
+
+    <label for="foodPreference">Food Preference:</label>
+    <select id="foodPreference" name="foodPreference" onchange="calculateTotal()">
+        <option value="veg">Vegetarian</option>
+        <option value="non-veg">Non-Vegetarian</option>
+    </select><br><br>
+
+    <label for="packagePlace">Package Place:</label>
+    <input type="text" id="packagePlace" name="packagePlace" value="{{ destination }}" readonly><br><br>
+
+    <label for="userName">Your Name:</label>
+    <input type="text" id="userName" name="userName" value="{{ session.username }}" required readonly><br><br>
+
+    <h3>Total Cost: <span id="totalCost">0</span> INR</h3>
+    
+    <button style="background-color: darkolivegreen;color: white;" type="button" id="proceedButton" onclick="proceed()">Proceed</button>
+</form>
+
+<script>
+let packagePrice = parseInt("{{ price }}") || 0;  // Fetch the price from the backend (passed from the route)
+let packagePlace = "{{ destination }}";  // The name of the package (place) passed from Flask
+let userName = "{{ session['username'] }}";  // The logged-in user's name passed from Flask
+
+function calculateTotal() {
+    const vegFoodCost = 100;
+    const nonVegFoodCost = 200;
+
+    const adults = parseInt(document.getElementById("adults").value) || 0;
+    const children = parseInt(document.getElementById("children").value) || 0;
+    const foodPreference = document.getElementById("foodPreference").value;
+
+    // Child price is half of the adult price
+    const adultCost = packagePrice;
+    const childCost = packagePrice / 2;
+
+    let total = (adults * adultCost) + (children * childCost);
+
+    if (foodPreference === "veg") {
+        total += (adults + children) * vegFoodCost;
+    } else {
+        total += (adults + children) * nonVegFoodCost;
+    }
+
+    document.getElementById("totalCost").innerText = total;
+}
+
+function proceed() {
+    // Collect form data
+    const adults = parseInt(document.getElementById("adults").value) || 0;
+    const children = parseInt(document.getElementById("children").value) || 0;
+    const foodPreference = document.getElementById("foodPreference").value;
+    const totalCost = document.getElementById("totalCost").innerText;
+    const travelDate = document.getElementById("travel_date").value; // Get the travel date
+    const userName = document.getElementById("userName").value;  // Get the user's name
+    const packagePlace = document.getElementById("packagePlace").value; // Get the package place
+
+    // Prepare data to be sent to the backend
+    const bookingData = {
+        adults: adults,
+        children: children,
+        foodPreference: foodPreference,
+        totalCost: totalCost,
+        travelDate: travelDate,
+        packagePlace: packagePlace,
+        userName: userName  // Use the logged-in user's name
+    };
+
+    // Send booking data to the backend via a POST request
+    fetch('/confirm_booking', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bookingData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);  // Show success message from the backend
+        // Optionally, redirect to another page or reset the form here
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+    });
+}
+</script>
+{% endblock %}

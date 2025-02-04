@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="border-style:outset; background-color:rgb(168, 168, 255);" class="login-container">
+    
+<h2 style="text-align: center;">Register</h2>
+<form method="POST">
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username" required>
+    <br><br>
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required>
+    <br><br>
+    <button type="submit">Register</button>
+    <br><br>
+</form>
+{% endblock %}

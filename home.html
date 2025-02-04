@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Welcome to our website.. Tour Sphere: Explore with ease</h2>
+
+<p>Explore our travel packages and start enjoying.</p>
+
+<h3>Our Travel Packages</h3>
+<div class="card-container">
+    {% for package in travel_packages %}
+        <div class="card">
+            <img src="{{ url_for('static', filename='images/' + package['image']) }}" alt="{{ package['destination'] }}" class="card-img">
+            <h4 style="font-style: italic;">Location: {{ package['destination'].capitalize() }}</h4>
+            <p style="font-style: italic;">More:{{ package['description'] }}</p>
+            <p style="font-style: italic;">Price: Rs.{{ package['price'] }}</p>
+            {% if 'username' in session %}
+                <!-- Pass package ID, price, and destination to the booking page -->
+                <a href="{{ url_for('booking', package_id=package['id'], price=package['price'], destination=package['destination']) }}" class="btn">Book Now</a>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="btn">Book Now</a>
+            {% endif %}
+        </div>
+    {% endfor %}
+</div>
+
+{% if 'username' in session %}
+    <p>You are logged in as {{ session['username'] }}. Enjoy your stay!</p>
+
+    <h3>Additional Information</h3>
+    <div class="card">
+        <h4>Travel as per your live location</h4>
+        <p>We can help you find travel packages based on your current location. Stay tuned for more features!</p>
+        <a href="{{ url_for('travel_packages') }}" class="btn">Travel Packages</a>
+        
+    </div>
+{% else %}
+    <p>Please log in or register to continue.</p>
+{% endif %}
+{% endblock %}

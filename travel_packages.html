@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}Travel Packages{% endblock %}
+
+{% block content %}
+<body>
+    <h1>Nearest Location Finder</h1>
+    <button onclick="getNearestLocation()">Find Locations</button>
+    <p id="status"></p>
+    <div id="nearest"></div>
+    <p id="loading">Locating...</p>
+
+    <script>
+        const username = "{{ username }}";  // Get the logged-in username passed from Flask
+
+        function getNearestLocation() {
+            const statusElement = document.getElementById("status");
+            const nearestElement = document.getElementById("nearest");
+            const loadingElement = document.getElementById("loading");
+
+            // Clear previous results
+            nearestElement.innerHTML = '';
+            // Show loading indicator
+            loadingElement.style.display = 'block';
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((position) => {
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+
+                    // Send data to the server to fetch locations
+                    fetch('/get_nearest_location', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ latitude, longitude })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        loadingElement.style.display = 'none';  // Hide loading
+                        if (data.message === "Nearest locations found") {
+                            statusElement.textContent = `Your Location: Latitude ${latitude}, Longitude ${longitude}`;
+                            statusElement.classList.add('success');
+
+                            // Display all locations with their distances
+                            if (data.nearest_locations.length === 0) {
+                                nearestElement.innerHTML = "<p>No locations found.</p>";
+                            } else {
+                                data.nearest_locations.forEach((location, detect_location) => {
+                                    const locationDiv = document.createElement('div');
+                                    locationDiv.classList.add('location');
+                                    
+                                    // Add location image with fallback
+                                    //const imgElement = document.createElement('img');
+                                    //imgElement.src = location.image ? location.image : 'default-image.jpeg';  // Add fallback image
+                                    //imgElement.onerror = () => {
+                                    //    imgElement.src = 'default-image.jpeg';  // Fallback if image doesn't load
+                                    //};
+                                    //locationDiv.appendChild(imgElement);
+
+                                    // Add location info (name, distance, price)
+                                    const locationInfoDiv = document.createElement('div');
+                                    locationInfoDiv.classList.add('location-info');
+                                    locationInfoDiv.innerHTML = ` 
+                                        <strong>${location.name}</strong><br>
+                                        Distance: ${location.distance_km.toFixed(2)} km<br>
+                                        Price: ₹${location.price.toFixed(2)}<br>
+                                        Description: ${location.description}
+                                    
+                                    `;
+                                    locationDiv.appendChild(locationInfoDiv);
+
+                                    // Add "Book Now" button with redirection to booking page
+                                    const bookButton = document.createElement('button');
+                                    bookButton.classList.add('book-now');
+                                    bookButton.textContent = "Book Now";
+                                    bookButton.onclick = function() {
+                                        // Redirect to booking page with location details and username
+                                        const bookingUrl = `/booking?package_id=${location.id}&price=${location.price}&destination=${encodeURIComponent(location.name)}&username=${username}`;
+                                        window.location.href = bookingUrl;
+                                    };
+                                    locationDiv.appendChild(bookButton);
+
+                                    nearestElement.appendChild(locationDiv);
+                                });
+                            }
+                        } else {
+                            statusElement.textContent = "Error finding locations.";
+                            statusElement.classList.add('error');
+                        }
+                    })
+                    .catch(error => {
+                        loadingElement.style.display = 'none';  // Hide loading
+                        statusElement.textContent = "Error fetching locations.";
+                        statusElement.classList.add('error');
+                        console.error("Error:", error);
+                    });
+                }, (error) => {
+                    loadingElement.style.display = 'none';  // Hide loading
+                    statusElement.textContent = "Unable to retrieve location. Please enable location services.";
+                    statusElement.classList.add('error');
+                    console.error(error);
+                });
+            } else {
+                loadingElement.style.display = 'none';  // Hide loading
+                statusElement.textContent = "Geolocation is not supported by this browser.";
+                statusElement.classList.add('error');
+            }
+        }
+    </script>
+{% endblock %}

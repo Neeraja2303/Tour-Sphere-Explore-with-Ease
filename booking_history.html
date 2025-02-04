@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Booking History</h2>
+
+{% if bookings %}
+    <table>
+        <thead>
+            <tr>
+                <th>Package Name</th>
+                <th>Travel Date</th>
+                <th>Number of Adults</th>
+                <th>Number of Children</th>
+                <th>Food Preference</th>
+                <th>Total Cost</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for booking in bookings %}
+            <tr>
+                <td>{{ booking['packagePlace'].capitalize() }}</td>
+                <td>{{ booking['travelDate'] }}</td>
+                <td>{{ booking['adults'] }}</td>
+                <td>{{ booking['children'] }}</td>
+                <td>{{ booking['foodPreference'].capitalize() }}</td>
+                <td>{{ booking['totalCost'] }} INR</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>{{ message or "You have no booking history." }}</p>
+{% endif %}
+
+{% endblock %}
